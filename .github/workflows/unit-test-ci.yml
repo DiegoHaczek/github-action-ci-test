@@ -37,7 +37,7 @@ jobs:
         id: get_files
         run: |
           git fetch origin main
-          FILES=$(git diff --name-only origin/main...${{ github.head_ref }})
+          FILES=$(git diff --name-only origin/main...${{ github.event.pull_request.head.sha }})
           echo "files=${FILES}" >> $GITHUB_ENV
 
       - name: Extract coverage data
