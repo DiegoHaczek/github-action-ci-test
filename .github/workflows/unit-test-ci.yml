@@ -57,7 +57,7 @@ jobs:
             COVERAGE=${COVERAGE:-"No coverage data%"}
             COVERAGE_TABLE+="| $PACKAGE | $CLASS_NAME | $COVERAGE |\n"
           done
-          echo "coverage_table=${COVERAGE_TABLE}" >> $GITHUB_ENV
+          echo -e "$COVERAGE_TABLE" >> $GITHUB_ENV
 
       - name: Get coverage percentage
         id: coverage
@@ -80,6 +80,4 @@ jobs:
             | Name                        | Status | Coverage | Updated (UTC)            |
             | :-------------------------- | :----- | :------- | :----------------------- |
             | **JUnit tests**            | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
-            | Package | File | Coverage |
-            | :--- | :--- | :--- |
             ${{ env.coverage_table }}
