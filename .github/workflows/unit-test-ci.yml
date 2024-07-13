@@ -80,4 +80,6 @@ jobs:
             | Name                        | Status | Coverage | Updated (UTC)            |
             | :-------------------------- | :----- | :------- | :----------------------- |
             | **JUnit tests**            | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
-            ${{ fromJson('["' + replace(env.coverage_table, "\\n", '","') + '"]') }}
+            | Package | File | Coverage |
+            | :--- | :--- | :--- |
+            ${{ env.coverage_table }}
