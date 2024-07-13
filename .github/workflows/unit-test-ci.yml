@@ -36,7 +36,9 @@ jobs:
       - name: Get modified files
         id: get_files
         run: |
-          echo "files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | tr '\n' ' ')" >> $GITHUB_ENV
+          git fetch origin main
+          FILES=$(git diff --name-only origin/main...${{ github.head_ref }})
+          echo "files=${FILES}" >> $GITHUB_ENV
 
       - name: Extract coverage data
         id: extract_coverage
