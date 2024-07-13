@@ -14,7 +14,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -37,7 +39,8 @@ jobs:
         id: get_files
         run: |
           git fetch origin main
-          FILES=$(git diff --name-only origin/main...${{ github.event.pull_request.head.sha }})
+          git checkout ${{ github.event.pull_request.base.ref }}
+          FILES=$(git diff --name-only origin/main...${{ github.sha }})
           echo "files=${FILES}" >> $GITHUB_ENV
 
       - name: Extract coverage data
