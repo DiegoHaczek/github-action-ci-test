@@ -31,7 +31,13 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Install dependencies and run tests
-        run: mvn clean install
+        run: mvn clean test
+
+      - name: Get coverage percentage
+        id: coverage
+        run: |
+          COVERAGE=$(mvn jacoco:report | grep -oP '(?<=<lineCoverage>)[0-9]+(?:\.[0-9]+)?')
+          echo "coverage=${COVERAGE}" >> $GITHUB_ENV
 
       - name: Archive test results
         if: always()
@@ -46,5 +52,6 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             **Workflow Status:** ${{ job.status }}
+            **Coverage:** ${{ env.coverage }}%
             - If the workflow succeeded, it means the tests passed.
             - If the workflow failed, please check the logs for more details.

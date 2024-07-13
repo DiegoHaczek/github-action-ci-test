@@ -12,7 +12,7 @@
 	<artifactId>github-action-ci-test</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>github-action-ci-test</name>
-	<description>Demo project for testing continuous integration with github action</description>
+	<description>Demo project for testing continuous integration with GitHub actions</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -62,6 +62,25 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
