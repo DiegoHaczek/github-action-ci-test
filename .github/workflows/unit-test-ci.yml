@@ -50,7 +50,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
-    body: |
-      | Name                        | Status | Coverage | Updated (UTC)            |
-      | :-------------------------- | :----- | :------- | :----------------------- |
-      | **JUnit tests**      | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
+          body: |
+            | Name                        | Status | Coverage | Updated (UTC)            |
+            | :-------------------------- | :----- | :------- | :----------------------- |
+            | **JUnit tests**      | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
