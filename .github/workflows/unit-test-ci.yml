@@ -36,3 +36,12 @@ jobs:
         with:
           name: test-results
           path: target/surefire-reports/*.xml
+
+      - name: Comment on PR
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Workflow Status:** ${{ job.status }}
+            - If the workflow succeeded, it means the tests passed.
+            - If the workflow failed, please check the logs for more details.
