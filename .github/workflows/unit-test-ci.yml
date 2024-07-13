@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-      -
+
 permissions:
   pull-requests: write
 
@@ -35,26 +35,27 @@ jobs:
       - name: Install dependencies and run tests
         run: mvn clean test
 
-      - name: Get modified files
+      - name: Get modified Java files
         id: get_files
         run: |
           git fetch origin main
-          git checkout ${{ github.event.pull_request.base.ref }}
-          FILES=$(git diff --name-only origin/main...${{ github.sha }} | grep '\.java$')
-          echo "files=${FILES}" | tr ' ' '\n' >> $GITHUB_ENV
+          FILES=$(git diff --name-only origin/main...$(git rev-parse HEAD) -- '*.java')
+          echo "FILES<<EOF" >> $GITHUB_ENV
+          echo "$FILES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Extract coverage data
         id: extract_coverage
         run: |
-          FILES="${{ env.files }}"
-          COVERAGE_TABLE="| File | Coverage |\n| :--- | :--- |\n"
+          FILES="${{ env.FILES }}"
+          COVERAGE_TABLE="| Package | File | Coverage |\n| :--- | :--- | :--- |\n"
           for FILE in $FILES; do
-            COVERAGE=$(grep -oP "^$FILE,.*?\K[0-9]+(?=%)" jacoco.csv)
-            if [ ! -z "$COVERAGE" ]; then
-              COVERAGE_TABLE+="| $FILE | $COVERAGE% |\n"
-            else
-              COVERAGE_TABLE+="| $FILE | No Coverage Data |\n"
-            fi
+            PACKAGE=$(dirname "$FILE" | sed 's|src/main/java/||;s|/|.|g')
+            CLASS_NAME=$(basename "$FILE" .java)
+            COVERAGE=$(awk -F, -v class="$CLASS_NAME" '$3 == class {print ($5 * 100) / ($4 + $5) "%"}' target/site/jacoco/jacoco.csv)
+
+            COVERAGE=${COVERAGE:-"No coverage data%"}
+            COVERAGE_TABLE+="| $PACKAGE | $CLASS_NAME | $COVERAGE |\n"
           done
           echo "coverage_table=${COVERAGE_TABLE}" >> $GITHUB_ENV
 
@@ -78,5 +79,5 @@ jobs:
           body: |
             | Name                        | Status | Coverage | Updated (UTC)            |
             | :-------------------------- | :----- | :------- | :----------------------- |
-            | **JUnit tests**      | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
+            | **JUnit tests**            | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
             ${{ env.coverage_table }}
