@@ -48,14 +48,14 @@ jobs:
         id: extract_coverage
         run: |
           FILES="${{ env.FILES }}"
-          COVERAGE_TABLE="| Package | File | Coverage |\n| :--- | :--- | :--- |\n"
+          COVERAGE_TABLE="\n| File | Package | Coverage |\n| :--- | :--- | :--- |\n"
           for FILE in $FILES; do
             PACKAGE=$(dirname "$FILE" | sed 's|src/main/java/||;s|/|.|g')
             CLASS_NAME=$(basename "$FILE" .java)
             COVERAGE=$(awk -F, -v class="$CLASS_NAME" '$3 == class {print ($5 * 100) / ($4 + $5) "%"}' target/site/jacoco/jacoco.csv)
 
             COVERAGE=${COVERAGE:-"No coverage data%"}
-            COVERAGE_TABLE+="| $PACKAGE | $CLASS_NAME | $COVERAGE |\n"
+            COVERAGE_TABLE+="| **$CLASS_NAME** | $PACKAGE | $COVERAGE |\n"
           done
           echo "COVERAGE_TABLE<<EOF" >> $GITHUB_ENV
           echo -e "$COVERAGE_TABLE" >> $GITHUB_ENV
@@ -83,3 +83,4 @@ jobs:
             | :--------------------------- | :----- | :--------------- | :----------------------- |
             | **JUnit tests**             | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
             ${{ env.COVERAGE_TABLE }}
+            | [View Full Coverage Report](https://github.com/${{ github.repository }}/raw/${{ github.sha }}/target/site/jacoco/index.html) | | |
