@@ -40,8 +40,8 @@ jobs:
         run: |
           git fetch origin main
           git checkout ${{ github.event.pull_request.base.ref }}
-          FILES=$(git diff --name-only origin/main...${{ github.sha }})
-          echo "files=${FILES}" >> $GITHUB_ENV
+          FILES=$(git diff --name-only origin/main...${{ github.sha }} | grep '\.java$')
+          echo "files=${FILES}" | tr ' ' '\n' >> $GITHUB_ENV
 
       - name: Extract coverage data
         id: extract_coverage
