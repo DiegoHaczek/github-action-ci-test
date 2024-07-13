@@ -48,7 +48,7 @@ jobs:
         id: extract_coverage
         run: |
           FILES="${{ env.FILES }}"
-          COVERAGE_TABLE="\n| Package | File | Coverage |\n| :--- | :--- | :--- |\n"
+          COVERAGE_TABLE="| Package | File | Coverage |\n| :--- | :--- | :--- |\n"
           for FILE in $FILES; do
             PACKAGE=$(dirname "$FILE" | sed 's|src/main/java/||;s|/|.|g')
             CLASS_NAME=$(basename "$FILE" .java)
@@ -79,7 +79,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            | Name                        | Status | Coverage | Updated (UTC)            |
-            | :-------------------------- | :----- | :------- | :----------------------- |
-            | **JUnit tests**            | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
+            | Workflow name                | Status | Project coverage | Updated (UTC)            |
+            | :--------------------------- | :----- | :--------------- | :----------------------- |
+            | **JUnit tests**             | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
             ${{ env.COVERAGE_TABLE }}
