@@ -50,8 +50,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            **Workflow Status:** ${{ job.status }}
-            **Coverage:** ${{ env.coverage }}%
-            - If the workflow succeeded, it means the tests passed.
-            - If the workflow failed, please check the logs for more details.
+    body: |
+      | Name                        | Status | Coverage | Updated (UTC)            |
+      | :-------------------------- | :----- | :------- | :----------------------- |
+      | **JUnit tests**      | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
