@@ -41,7 +41,7 @@ jobs:
           git fetch origin main
           FILES=$(git diff --name-only origin/main...$(git rev-parse HEAD) -- '*.java')
           echo "FILES<<EOF" >> $GITHUB_ENV
-          echo "$FILES" >> $GITHUB_ENV
+          echo -e "$FILES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Extract coverage data
