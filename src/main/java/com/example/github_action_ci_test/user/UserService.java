@@ -11,7 +11,7 @@ public class UserService {
         return List.of(
           new User("John Doe", "12345"),
           new User("Peter Parker", "12345"),
-          new User("John Smith", "12345")
+          new User("John Smith", "123456")
         );
     }
 }
