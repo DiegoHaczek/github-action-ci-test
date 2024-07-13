@@ -47,7 +47,7 @@ jobs:
       - name: Extract coverage data
         id: extract_coverage
         run: |
-          FILES="${{ env.FILES }}"
+          FILES="${{ env.files }}"
           COVERAGE_TABLE="| Package | File | Coverage |\n| :--- | :--- | :--- |\n"
           for FILE in $FILES; do
             PACKAGE=$(dirname "$FILE" | sed 's|src/main/java/||;s|/|.|g')
@@ -57,7 +57,9 @@ jobs:
             COVERAGE=${COVERAGE:-"No coverage data%"}
             COVERAGE_TABLE+="| $PACKAGE | $CLASS_NAME | $COVERAGE |\n"
           done
+          echo "COVERAGE_TABLE<<EOF" >> $GITHUB_ENV
           echo -e "$COVERAGE_TABLE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Get coverage percentage
         id: coverage
