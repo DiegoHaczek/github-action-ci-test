@@ -80,4 +80,4 @@ jobs:
             | Name                        | Status | Coverage | Updated (UTC)            |
             | :-------------------------- | :----- | :------- | :----------------------- |
             | **JUnit tests**            | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
-            ${{ env.coverage_table }}
+            ${{ fromJson('["' + replace(env.coverage_table, "\\n", '","') + '"]') }}
