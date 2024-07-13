@@ -36,7 +36,7 @@ jobs:
       - name: Get coverage percentage
         id: coverage
         run: |
-          COVERAGE=$(grep -oP '(?<=Cov.</td><td class="ctr2">)[0-9]+(?=\s*%)' target/site/jacoco/index.html | tail -1)
+          COVERAGE=$(grep -oP '(?<=class="ctr2">)[0-9]+(?=\s*%)' target/site/jacoco/index.html | tail -1)
           echo "coverage=${COVERAGE}" >> $GITHUB_ENV
 
       - name: Archive test results
