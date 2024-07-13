@@ -33,6 +33,26 @@ jobs:
       - name: Install dependencies and run tests
         run: mvn clean test
 
+      - name: Get modified files
+        id: get_files
+        run: |
+          echo "files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | tr '\n' ' ')" >> $GITHUB_ENV
+
+      - name: Extract coverage data
+        id: extract_coverage
+        run: |
+          FILES="${{ env.files }}"
+          COVERAGE_TABLE="| File | Coverage |\n| :--- | :--- |\n"
+          for FILE in $FILES; do
+            COVERAGE=$(grep -oP "^$FILE,.*?\K[0-9]+(?=%)" jacoco.csv)
+            if [ ! -z "$COVERAGE" ]; then
+              COVERAGE_TABLE+="| $FILE | $COVERAGE% |\n"
+            else
+              COVERAGE_TABLE+="| $FILE | No Coverage Data |\n"
+            fi
+          done
+          echo "coverage_table=${COVERAGE_TABLE}" >> $GITHUB_ENV
+
       - name: Get coverage percentage
         id: coverage
         run: |
@@ -54,3 +74,4 @@ jobs:
             | Name                        | Status | Coverage | Updated (UTC)            |
             | :-------------------------- | :----- | :------- | :----------------------- |
             | **JUnit tests**      | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
+            ${{ env.coverage_table }}
