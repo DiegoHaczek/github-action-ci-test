@@ -36,6 +36,7 @@ jobs:
         run: mvn clean test
 
       - name: Get modified Java files
+        if: always()
         id: get_files
         run: |
           git fetch origin main
@@ -45,6 +46,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Extract coverage data
+        if: always()
         id: extract_coverage
         run: |
           FILES="${{ env.FILES }}"
@@ -62,6 +64,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Get coverage percentage
+        if: always()
         id: coverage
         run: |
           COVERAGE=$(grep -oP '(?<=class="ctr2">)[0-9]+(?=\s*%)' target/site/jacoco/index.html | tail -1)
@@ -75,6 +78,7 @@ jobs:
           path: target/surefire-reports/*.xml
 
       - name: Comment on PR
+        if: always()
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
