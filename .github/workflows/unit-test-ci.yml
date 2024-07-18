@@ -40,7 +40,7 @@ jobs:
         id: get_files
         run: |
           git fetch origin main
-          FILES=$(git diff --name-only origin/main...$(git rev-parse HEAD) -- '*.java')
+          FILES=$(git diff --name-only origin/main...$(git rev-parse HEAD) -- '*.java' | grep -v 'Test.java$')
           echo "FILES<<EOF" >> $GITHUB_ENV
           echo "$FILES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
