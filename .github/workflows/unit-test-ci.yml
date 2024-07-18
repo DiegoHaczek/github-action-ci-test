@@ -77,6 +77,12 @@ jobs:
           name: test-results
           path: target/surefire-reports/*.xml
 
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
+        with:
+          report_paths: 'target/surefire-reports/*.xml'
+
       - name: Comment on PR
         if: always()
         uses: peter-evans/create-or-update-comment@v4
