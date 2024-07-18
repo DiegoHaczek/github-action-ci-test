@@ -83,4 +83,3 @@ jobs:
             | :--------------------------- | :----- | :--------------- | :----------------------- |
             | **JUnit tests**             | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
             ${{ env.COVERAGE_TABLE }}
-            | [View Full Coverage Report](https://github.com/${{ github.repository }}/raw/${{ github.sha }}/target/site/jacoco/index.html) | | |
