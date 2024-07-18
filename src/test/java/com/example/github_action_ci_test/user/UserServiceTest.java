@@ -19,7 +19,6 @@ class UserServiceTest {
     void testGetAllUsers() {
         assertFalse(userService.getAllUsers().isEmpty());
     }
-
     @Test
     void failingTest() {
         fail();
