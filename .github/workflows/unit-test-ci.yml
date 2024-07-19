@@ -10,7 +10,7 @@ permissions:
   checks: write
 
 jobs:
-  Build and run test:
+  Build_and_run_test:
     runs-on: ubuntu-latest
 
     steps:
