@@ -93,9 +93,9 @@ jobs:
           body: |
             | Workflow name                | Status | Project coverage | Updated (UTC)            |
             | :--------------------------- | :----- | :--------------- | :----------------------- |
-            | **JUnit tests**             | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
+            | **JUnit tests**             | ${{ env.test_result == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
             ${{ env.COVERAGE_TABLE }}
             
-      - name: Fail job if tests failed
+      - name: Set Job Status
         if: ${{ env.test_result != 'success' }}
         run: exit 1
