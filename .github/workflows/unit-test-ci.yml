@@ -1,37 +1,101 @@
-name: CI
+name: Build
 
 on:
   pull_request:
     branches:
       - main
 
+permissions:
+  pull-requests: write
+  checks: write
+
 jobs:
-  test:
+  Build_and_run_test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
+          distribution: 'corretto'
 
       - name: Cache Maven packages
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Install dependencies and run tests
-        run: mvn clean install
+      - name: Build project
+        run: mvn clean compile
+        continue-on-error: false
 
-      - name: Archive test results
+      - name: Run tests
+        run: mvn test
+        continue-on-error: true
+
+      - name: Get modified Java files
         if: always()
-        uses: actions/upload-artifact@v2
+        id: get_files
+        run: |
+          git fetch origin main
+          FILES=$(git diff --name-only origin/main...$(git rev-parse HEAD) -- '*.java' | grep -v 'Test.java$')
+          echo "FILES<<EOF" >> $GITHUB_ENV
+          echo "$FILES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Extract coverage data
+        if: always()
+        id: extract_coverage
+        run: |
+          FILES="${{ env.FILES }}"
+          COVERAGE_TABLE="\n| File | Package | Coverage |\n| :--- | :--- | :--- |\n"
+          for FILE in $FILES; do
+            PACKAGE=$(dirname "$FILE" | sed 's|src/main/java/||;s|/|.|g')
+            CLASS_NAME=$(basename "$FILE" .java)
+            COVERAGE=$(awk -F, -v class="$CLASS_NAME" '$3 == class {print ($5 * 100) / ($4 + $5) "%"}' target/site/jacoco/jacoco.csv)
+
+            COVERAGE=${COVERAGE:-"No coverage data%"}
+            COVERAGE_TABLE+="| **$CLASS_NAME** | $PACKAGE | $COVERAGE |\n"
+          done
+          echo "COVERAGE_TABLE<<EOF" >> $GITHUB_ENV
+          echo -e "$COVERAGE_TABLE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Get coverage percentage
+        if: always()
+        id: coverage
+        run: |
+          COVERAGE=$(grep -oP '(?<=class="ctr2">)[0-9]+(?=\s*%)' target/site/jacoco/index.html | tail -1)
+          echo "coverage=${COVERAGE}" >> $GITHUB_ENV
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
         with:
-          name: test-results
-          path: target/surefire-reports/*.xml
+          report_paths: 'target/surefire-reports/*.xml'
+          require_tests: true
+          detailed_summary: true
+          check_annotations: true
+
+      - name: Comment on PR
+        if: always()
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            | Workflow name                | Status | Project coverage | Updated (UTC)            |
+            | :--------------------------- | :----- | :--------------- | :----------------------- |
+            | **JUnit tests**             | ${{ env.test_result == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ env.coverage }}%  | ${{ github.event.pull_request.updated_at }} |
+            ${{ env.COVERAGE_TABLE }}
+            
+      - name: Set Job Status
+        if: ${{ env.test_result != 'success' }}
+        run: exit 1
